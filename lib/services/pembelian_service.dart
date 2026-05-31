@@ -6,10 +6,10 @@ class PembelianService {
 
   Future<List<Pembelian>> list({String? search, int? supplierId, String? start, String? end}) async {
     final res = await _dio.get('/pembelian', queryParameters: {
-      if (search != null) 'q': search,
-      if (supplierId != null) 'supplier_id': supplierId,
-      if (start != null) 'start': start,
-      if (end != null) 'end': end,
+      'q': ?search,
+      'supplier_id': ?supplierId,
+      'start': ?start,
+      'end': ?end,
     });
     final list = res.data['data'] as List;
     return list.map((e) => Pembelian.fromJson(e as Map<String, dynamic>)).toList();

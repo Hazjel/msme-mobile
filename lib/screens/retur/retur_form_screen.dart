@@ -11,8 +11,8 @@ class _SisaItem {
   final int sudahDiretur;
   final int sisaRetur;
   final double harga;
-  bool checked;
-  int qty;
+  bool checked = false;
+  int qty = 1;
 
   _SisaItem({
     required this.pembelianDetailId,
@@ -21,8 +21,6 @@ class _SisaItem {
     required this.sudahDiretur,
     required this.sisaRetur,
     required this.harga,
-    this.checked = false,
-    this.qty = 1,
   });
 }
 

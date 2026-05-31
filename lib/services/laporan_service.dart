@@ -11,18 +11,18 @@ class LaporanService {
 
   Future<Map<String, dynamic>> laporanPembelian({String? start, String? end, int? supplierId}) async {
     final res = await _dio.get('/laporan/pembelian', queryParameters: {
-      if (start != null) 'start': start,
-      if (end != null) 'end': end,
-      if (supplierId != null) 'supplier_id': supplierId,
+      'start': ?start,
+      'end': ?end,
+      'supplier_id': ?supplierId,
     });
     return res.data as Map<String, dynamic>;
   }
 
   Future<Map<String, dynamic>> laporanRetur({String? start, String? end, int? supplierId}) async {
     final res = await _dio.get('/laporan/retur-pembelian', queryParameters: {
-      if (start != null) 'start': start,
-      if (end != null) 'end': end,
-      if (supplierId != null) 'supplier_id': supplierId,
+      'start': ?start,
+      'end': ?end,
+      'supplier_id': ?supplierId,
     });
     return res.data as Map<String, dynamic>;
   }

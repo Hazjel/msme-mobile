@@ -107,9 +107,8 @@ class _PembelianListScreenState extends State<PembelianListScreen> {
                       child: ListTile(
                         title: Text(p.nomor, style: const TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: Text('${p.tanggal} • ${p.supplier?.nama ?? '-'}'),
-                        trailing: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.end,
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(formatRupiah(p.total), style: const TextStyle(fontWeight: FontWeight.bold)),
                             PopupMenuButton<String>(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/pembelian.dart';
 import '../../services/pembelian_service.dart';
 import '../../widgets/rupiah.dart';
+import 'pembelian_form_screen.dart';
 
 class PembelianDetailScreen extends StatefulWidget {
   final int id;
@@ -21,10 +22,35 @@ class _PembelianDetailScreenState extends State<PembelianDetailScreen> {
     _future = _service.show(widget.id);
   }
 
+  Future<void> _edit(Pembelian p) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => PembelianFormScreen(pembelian: p)),
+    );
+    if (result == true) {
+      setState(() => _future = _service.show(widget.id));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Detail Pembelian')),
+      appBar: AppBar(
+        title: const Text('Detail Pembelian'),
+        actions: [
+          FutureBuilder<Pembelian>(
+            future: _future,
+            builder: (_, snap) {
+              if (!snap.hasData) return const SizedBox.shrink();
+              return IconButton(
+                icon: const Icon(Icons.edit),
+                tooltip: 'Edit',
+                onPressed: () => _edit(snap.data!),
+              );
+            },
+          ),
+        ],
+      ),
       body: FutureBuilder<Pembelian>(
         future: _future,
         builder: (context, snap) {

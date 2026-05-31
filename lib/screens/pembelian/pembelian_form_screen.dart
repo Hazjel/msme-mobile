@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/barang.dart';
+import '../../models/pembelian.dart';
 import '../../models/supplier.dart';
 import '../../services/master_data_service.dart';
 import '../../services/pembelian_service.dart';
@@ -7,13 +8,15 @@ import '../../widgets/rupiah.dart';
 
 class _ItemRow {
   Barang? barang;
-  int qty;
-  double harga;
-  _ItemRow({this.barang, this.qty = 1, this.harga = 0});
+  int qty = 1;
+  double harga = 0;
 }
 
 class PembelianFormScreen extends StatefulWidget {
-  const PembelianFormScreen({super.key});
+  final Pembelian? pembelian;
+  const PembelianFormScreen({super.key, this.pembelian});
+
+  bool get isEdit => pembelian != null;
 
   @override
   State<PembelianFormScreen> createState() => _PembelianFormScreenState();
@@ -30,7 +33,7 @@ class _PembelianFormScreenState extends State<PembelianFormScreen> {
 
   List<Supplier> _suppliers = [];
   List<Barang> _barangs = [];
-  final List<_ItemRow> _items = [_ItemRow()];
+  final List<_ItemRow> _items = [];
 
   bool _loading = true;
   bool _saving = false;
@@ -48,6 +51,8 @@ class _PembelianFormScreenState extends State<PembelianFormScreen> {
       setState(() {
         _suppliers = s;
         _barangs = b;
+        _prefillIfEdit();
+        if (_items.isEmpty) _items.add(_ItemRow());
         _loading = false;
       });
     } catch (e) {
@@ -58,7 +63,33 @@ class _PembelianFormScreenState extends State<PembelianFormScreen> {
     }
   }
 
+  void _prefillIfEdit() {
+    final p = widget.pembelian;
+    if (p == null) return;
+
+    _tanggal = DateTime.tryParse(p.tanggal) ?? DateTime.now();
+    _supplier = _suppliers.firstWhere(
+      (s) => s.id == p.supplierId,
+      orElse: () => Supplier(id: p.supplierId, nama: p.supplier?.nama ?? ''),
+    );
+    _keteranganCtrl.text = p.keterangan ?? '';
+
+    for (final d in p.details) {
+      final barang = _barangs.firstWhere(
+        (b) => b.id == d.barangId,
+        orElse: () => Barang(id: d.barangId, kode: d.barangKode, nama: d.barangNama, satuan: '', hargaPokok: d.harga, hargaJual: 0, stok: 0),
+      );
+      _items.add(_ItemRow()
+        ..barang = barang
+        ..qty = d.qty
+        ..harga = d.harga);
+    }
+  }
+
   double get _grandTotal => _items.fold(0, (sum, r) => sum + (r.qty * r.harga));
+
+  String _fmtDate(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
@@ -72,17 +103,23 @@ class _PembelianFormScreenState extends State<PembelianFormScreen> {
     }
 
     setState(() => _saving = true);
+    final payload = {
+      'tanggal': _fmtDate(_tanggal),
+      'supplier_id': _supplier!.id,
+      'keterangan': _keteranganCtrl.text.isEmpty ? null : _keteranganCtrl.text,
+      'items': _items.map((r) => {
+        'barang_id': r.barang!.id,
+        'qty': r.qty,
+        'harga': r.harga,
+      }).toList(),
+    };
+
     try {
-      await _pembelianService.store({
-        'tanggal': '${_tanggal.year}-${_tanggal.month.toString().padLeft(2, '0')}-${_tanggal.day.toString().padLeft(2, '0')}',
-        'supplier_id': _supplier!.id,
-        'keterangan': _keteranganCtrl.text.isEmpty ? null : _keteranganCtrl.text,
-        'items': _items.map((r) => {
-          'barang_id': r.barang!.id,
-          'qty': r.qty,
-          'harga': r.harga,
-        }).toList(),
-      });
+      if (widget.isEdit) {
+        await _pembelianService.update(widget.pembelian!.id, payload);
+      } else {
+        await _pembelianService.store(payload);
+      }
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
       setState(() => _saving = false);
@@ -98,7 +135,7 @@ class _PembelianFormScreenState extends State<PembelianFormScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     return Scaffold(
-      appBar: AppBar(title: const Text('Tambah Pembelian')),
+      appBar: AppBar(title: Text(widget.isEdit ? 'Edit Pembelian' : 'Tambah Pembelian')),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -107,7 +144,7 @@ class _PembelianFormScreenState extends State<PembelianFormScreen> {
             ListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text('Tanggal'),
-              subtitle: Text('${_tanggal.toLocal()}'.split(' ')[0]),
+              subtitle: Text(_fmtDate(_tanggal)),
               trailing: const Icon(Icons.calendar_today),
               onTap: () async {
                 final picked = await showDatePicker(
@@ -155,7 +192,7 @@ class _PembelianFormScreenState extends State<PembelianFormScreen> {
             ElevatedButton.icon(
               onPressed: _saving ? null : _save,
               icon: _saving ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.save),
-              label: Text(_saving ? 'Menyimpan...' : 'Simpan'),
+              label: Text(_saving ? 'Menyimpan...' : (widget.isEdit ? 'Update' : 'Simpan')),
             ),
           ],
         ),

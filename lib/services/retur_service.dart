@@ -6,8 +6,8 @@ class ReturService {
 
   Future<List<ReturPembelian>> list({String? search, int? supplierId}) async {
     final res = await _dio.get('/retur-pembelian', queryParameters: {
-      if (search != null) 'q': search,
-      if (supplierId != null) 'supplier_id': supplierId,
+      'q': ?search,
+      'supplier_id': ?supplierId,
     });
     final list = res.data['data'] as List;
     return list.map((e) => ReturPembelian.fromJson(e as Map<String, dynamic>)).toList();

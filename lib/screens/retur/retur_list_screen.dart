@@ -23,7 +23,9 @@ class _ReturListScreenState extends State<ReturListScreen> {
   }
 
   void _load() {
-    setState(() => _future = _service.list());
+    setState(() {
+      _future = _service.list();
+    });
   }
 
   Future<void> _delete(int id) async {
@@ -83,9 +85,8 @@ class _ReturListScreenState extends State<ReturListScreen> {
                   child: ListTile(
                     title: Text(r.nomor, style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text('${r.tanggal} • ${r.supplier?.nama ?? '-'}\nPembelian: ${r.pembelianNomor}'),
-                    trailing: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(formatRupiah(r.total), style: const TextStyle(fontWeight: FontWeight.bold)),
                         PopupMenuButton<String>(
