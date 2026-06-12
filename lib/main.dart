@@ -10,12 +10,26 @@ class MsmeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF1565C0); // Dark blue per prototype PDF
+
     return MaterialApp(
       title: 'MSME Logistik',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: primary,
+          primary: primary,
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: primary,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          centerTitle: false,
+          titleTextStyle: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+          iconTheme: IconThemeData(color: Colors.white),
+        ),
+        scaffoldBackgroundColor: const Color(0xFFF5F7FA),
       ),
       home: const MainScreen(),
     );
