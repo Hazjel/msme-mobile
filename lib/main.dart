@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/dashboard_screen.dart';
+import 'screens/main_screen.dart';
 
 void main() {
   runApp(const MsmeApp());
@@ -11,13 +11,13 @@ class MsmeApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'MSME Mobile',
+      title: 'MSME Logistik',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const DashboardScreen(),
+      home: const MainScreen(),
     );
   }
 }
